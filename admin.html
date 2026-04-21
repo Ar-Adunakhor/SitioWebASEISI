@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ASEISI — Panel de Administración</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        :root { --red:#D32F2F; --red-dark:#B71C1C; --red-light:#EF5350; --accent2:#FF6B6B; --success:#10b981; --warning:#f59e0b; --danger:#ef4444; --gradient:linear-gradient(135deg,var(--red-dark),var(--red),var(--red-light)); }
+        [data-theme="dark"] { --bg:#0f0f17; --bg2:#1a1a2e; --card:#16213e; --border:#1e3a5f; --text:#f1f5f9; --muted:#94a3b8; --input-bg:#0f0f17; --hover:rgba(211,47,47,0.08); }
+        [data-theme="light"] { --bg:#f5f5f5; --bg2:#fff; --card:#fff; --border:#e5e7eb; --text:#1a1a2e; --muted:#6b7280; --input-bg:#f8f9fa; --hover:rgba(211,47,47,0.05); }
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);transition:background .3s,color .3s}
+
+        /* Login */
+        .login-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:2rem}
+        .login-box{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:2.5rem;max-width:420px;width:100%}
+        .login-box h1{font-size:1.6rem;font-weight:800;margin-bottom:.5rem;text-align:center;background:var(--gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+        .login-box .subtitle{text-align:center;color:var(--muted);margin-bottom:2rem;font-size:.9rem}
+
+        /* Layout */
+        .dashboard{display:flex;min-height:100vh}
+        .sidebar{width:260px;background:var(--bg2);border-right:1px solid var(--border);padding:1.5rem 0;display:flex;flex-direction:column;position:fixed;height:100vh;overflow-y:auto;transition:background .3s}
+        .sidebar-brand{padding:0 1.5rem 1.5rem;font-weight:800;font-size:1.2rem;background:var(--gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent;border-bottom:1px solid var(--border);margin-bottom:1rem}
+        .sidebar-nav{flex:1}
+        .sidebar-nav a{display:flex;align-items:center;gap:.75rem;padding:.7rem 1.5rem;color:var(--muted);text-decoration:none;font-size:.9rem;font-weight:500;transition:all .2s;border-left:3px solid transparent}
+        .sidebar-nav a:hover{background:var(--hover);color:var(--text)}
+        .sidebar-nav a.active{color:var(--red);border-left-color:var(--red);background:rgba(211,47,47,0.08)}
+        .sidebar-nav a i{width:20px;text-align:center}
+        .sidebar-section{padding:.5rem 1.5rem;font-size:.7rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-top:1rem}
+        .sidebar-footer{padding:1rem 1.5rem;border-top:1px solid var(--border)}
+        .sidebar-user{display:flex;align-items:center;gap:.75rem}
+        .sidebar-user .avatar{width:36px;height:36px;border-radius:50%;background:var(--gradient);display:flex;align-items:center;justify-content:center;font-size:1rem}
+        .sidebar-user .info{flex:1}
+        .sidebar-user .name{font-size:.85rem;font-weight:600}
+        .sidebar-user .role-badge{font-size:.7rem;padding:.15rem .5rem;border-radius:50px;font-weight:600;display:inline-block;margin-top:.2rem}
+        .role-admin{background:rgba(211,47,47,0.15);color:var(--red)}
+        .role-member{background:rgba(16,185,129,0.15);color:var(--success)}
+        .main-content{margin-left:260px;flex:1;padding:2rem;min-height:100vh}
+        .page-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:2rem;flex-wrap:wrap;gap:1rem}
+        .page-header h2{font-size:1.8rem;font-weight:800}
+        .page-header p{color:var(--muted);font-size:.9rem}
+
+        /* Components */
+        .btn{padding:.6rem 1.2rem;border-radius:10px;font-weight:600;font-size:.88rem;border:none;cursor:pointer;display:inline-flex;align-items:center;gap:.4rem;transition:all .2s;text-decoration:none}
+        .btn-primary{background:var(--gradient);color:#fff}
+        .btn-primary:hover{transform:translateY(-1px);box-shadow:0 4px 15px rgba(211,47,47,0.3)}
+        .btn-outline{background:transparent;color:var(--text);border:1px solid var(--border)}
+        .btn-outline:hover{border-color:var(--red)}
+        .btn-danger{background:var(--danger);color:#fff}
+        .btn-success{background:var(--success);color:#fff}
+        .btn-sm{padding:.4rem .8rem;font-size:.8rem}
+        .card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:1.5rem;margin-bottom:1.5rem;transition:background .3s}
+        .form-group{margin-bottom:1rem}
+        .form-group label{display:block;font-size:.85rem;font-weight:600;color:var(--muted);margin-bottom:.3rem}
+        .form-group input,.form-group textarea,.form-group select{width:100%;padding:.65rem .9rem;border-radius:8px;border:1px solid var(--border);background:var(--input-bg);color:var(--text);font-family:inherit;font-size:.9rem;transition:border-color .2s}
+        .form-group input:focus,.form-group textarea:focus,.form-group select:focus{outline:none;border-color:var(--red)}
+        .form-group input:invalid:not(:placeholder-shown){border-color:var(--danger)}
+        .form-group .error-msg{color:var(--danger);font-size:.75rem;margin-top:.2rem;display:none}
+        .form-group input:invalid:not(:placeholder-shown) ~ .error-msg{display:block}
+        .form-row{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+        table{width:100%;border-collapse:collapse}
+        th{text-align:left;padding:.75rem;font-size:.8rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid var(--border)}
+        td{padding:.75rem;font-size:.9rem;border-bottom:1px solid var(--border)}
+        tr:hover{background:var(--hover)}
+        .badge{display:inline-block;padding:.2rem .6rem;border-radius:50px;font-size:.75rem;font-weight:600}
+        .badge-open{background:rgba(16,185,129,0.15);color:var(--success)}
+        .badge-upcoming{background:rgba(211,47,47,0.15);color:var(--red)}
+        .badge-soon{background:rgba(245,158,11,0.15);color:var(--warning)}
+        .stat-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem;margin-bottom:2rem}
+        .stat-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:1.2rem 1.5rem;transition:background .3s}
+        .stat-card .label{font-size:.8rem;color:var(--muted);font-weight:600}
+        .stat-card .value{font-size:2rem;font-weight:800;margin-top:.3rem;background:var(--gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+        .actions{display:flex;gap:.5rem}
+
+        /* Emoji picker */
+        .emoji-picker-wrap{position:relative;display:inline-block;width:100%}
+        .emoji-input-row{display:flex;gap:.5rem;align-items:center}
+        .emoji-input-row input{flex:1}
+        .emoji-preview{font-size:1.8rem;width:42px;height:42px;display:flex;align-items:center;justify-content:center;background:var(--input-bg);border:1px solid var(--border);border-radius:8px;cursor:pointer;flex-shrink:0}
+        .emoji-grid{display:none;position:absolute;bottom:100%;left:0;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:.75rem;z-index:100;width:280px;max-height:200px;overflow-y:auto;box-shadow:0 8px 30px rgba(0,0,0,0.3);margin-bottom:.25rem}
+        .emoji-grid.open{display:grid;grid-template-columns:repeat(7,1fr);gap:.25rem}
+        .emoji-grid span{font-size:1.3rem;padding:.3rem;text-align:center;cursor:pointer;border-radius:6px;transition:background .15s}
+        .emoji-grid span:hover{background:var(--hover)}
+
+        /* Image upload */
+        .img-upload{position:relative;width:100%;min-height:120px;border:2px dashed var(--border);border-radius:12px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .2s;overflow:hidden}
+        .img-upload:hover{border-color:var(--red)}
+        .img-upload input{position:absolute;inset:0;opacity:0;cursor:pointer}
+        .img-upload img{max-width:100%;max-height:200px;object-fit:contain}
+        .img-upload .placeholder{text-align:center;color:var(--muted);padding:1rem}
+        .img-upload .placeholder i{font-size:2rem;display:block;margin-bottom:.5rem}
+        .img-remove{position:absolute;top:.5rem;right:.5rem;background:var(--danger);color:#fff;border:none;width:28px;height:28px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:.8rem;z-index:2}
+
+        /* Color picker */
+        .color-picker-row{display:flex;gap:.5rem;align-items:center}
+        .color-picker-row input[type="color"]{width:42px;height:42px;border:1px solid var(--border);border-radius:8px;cursor:pointer;padding:2px;background:var(--input-bg)}
+        .gradient-preview{height:42px;flex:1;border-radius:8px;border:1px solid var(--border)}
+
+        /* Modal */
+        .modal-overlay{display:none;position:fixed;inset:0;z-index:2000;background:rgba(0,0,0,0.6);backdrop-filter:blur(4px);align-items:center;justify-content:center}
+        .modal-overlay.active{display:flex}
+        .modal{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:2rem;max-width:600px;width:92%;max-height:85vh;overflow-y:auto;position:relative;animation:modalIn .25s ease}
+        @keyframes modalIn{from{opacity:0;transform:scale(.95) translateY(10px)}to{opacity:1;transform:scale(1) translateY(0)}}
+        .modal h3{font-size:1.3rem;font-weight:800;margin-bottom:1.5rem}
+        .modal-close{position:absolute;top:1rem;right:1rem;background:none;border:none;color:var(--muted);font-size:1.2rem;cursor:pointer}
+        .modal-actions{display:flex;gap:.75rem;justify-content:flex-end;margin-top:1.5rem}
+        .toast{position:fixed;bottom:2rem;right:2rem;z-index:3000;background:var(--success);color:#fff;padding:.8rem 1.3rem;border-radius:10px;font-weight:600;font-size:.9rem;display:flex;align-items:center;gap:.5rem;transform:translateY(80px);opacity:0;transition:all .3s}
+        .toast.show{transform:translateY(0);opacity:1}
+        .toast.error{background:var(--danger)}
+        .theme-btn{background:none;border:none;font-size:1.2rem;cursor:pointer;padding:.4rem;border-radius:8px;transition:background .2s}
+        .theme-btn:hover{background:var(--hover)}
+        .tab-content{display:none}.tab-content.active{display:block}
+        .thumb-sm{width:40px;height:40px;border-radius:8px;object-fit:cover;background:var(--border)}
+        @media(max-width:768px){.sidebar{display:none}.main-content{margin-left:0}.form-row{grid-template-columns:1fr}}
+    </style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div class="login-screen" id="loginScreen">
+    <div class="login-box">
+        <h1>🎓 ASEISI Admin</h1>
+        <p class="subtitle">Panel de Administración</p>
+        <form onsubmit="doLogin(event)" novalidate>
+            <div class="form-group">
+                <label>Usuario</label>
+                <input type="text" id="loginUser" placeholder="Tu usuario" required minlength="3" autofocus>
+                <div class="error-msg">Mínimo 3 caracteres</div>
+            </div>
+            <div class="form-group">
+                <label>Contraseña</label>
+                <input type="password" id="loginPass" placeholder="Tu contraseña" required minlength="4">
+                <div class="error-msg">Requerido</div>
+            </div>
+            <button type="submit" class="btn btn-primary" style="width:100%;margin-top:.5rem"><i class="fas fa-sign-in-alt"></i> Iniciar Sesión</button>
+        </form>
+        <p style="text-align:center;margin-top:1.5rem;font-size:.8rem;color:var(--muted)">¿No tienes cuenta? <a href="#" onclick="showRegisterForm()" style="color:var(--red)">Regístrate</a></p>
+        <div id="registerForm" style="display:none;margin-top:1rem;border-top:1px solid var(--border);padding-top:1rem">
+            <form onsubmit="doRegister(event)" novalidate>
+                <div class="form-group"><label>Nombre completo</label><input type="text" id="regName" placeholder="Tu nombre" required minlength="2"><div class="error-msg">Requerido</div></div>
+                <div class="form-group"><label>Usuario</label><input type="text" id="regUser" placeholder="Elige un usuario" required minlength="3" pattern="[a-zA-Z0-9_]+"><div class="error-msg">Solo letras, números y guión bajo (mín 3)</div></div>
+                <div class="form-group"><label>Correo</label><input type="email" id="regEmail" placeholder="tu@ues.edu.sv"><div class="error-msg">Correo inválido</div></div>
+                <div class="form-group"><label>Contraseña</label><input type="password" id="regPass" placeholder="Mínimo 6 caracteres" required minlength="6"><div class="error-msg">Mínimo 6 caracteres</div></div>
+                <button type="submit" class="btn btn-success" style="width:100%"><i class="fas fa-user-plus"></i> Crear Cuenta</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- DASHBOARD -->
+<div class="dashboard" id="dashboard" style="display:none">
+    <aside class="sidebar">
+        <div class="sidebar-brand">🎓 ASEISI Panel</div>
+        <nav class="sidebar-nav">
+            <div class="sidebar-section">General</div>
+            <a href="#" class="active" data-tab="overview"><i class="fas fa-th-large"></i> Dashboard</a>
+            <a href="#" data-tab="counters"><i class="fas fa-chart-bar"></i> Contadores</a>
+            <a href="#" data-tab="events"><i class="fas fa-calendar-alt"></i> Eventos</a>
+            <a href="#" data-tab="team"><i class="fas fa-user-tie"></i> Directiva</a>
+            <a href="#" data-tab="news"><i class="fas fa-newspaper"></i> Noticias</a>
+            <a href="#" data-tab="gallery"><i class="fas fa-images"></i> Galería</a>
+            <div class="sidebar-section" id="adminSection" style="display:none">Administración</div>
+            <a href="#" data-tab="users" id="usersLink" style="display:none"><i class="fas fa-users-cog"></i> Usuarios</a>
+            <a href="#" data-tab="committees" id="committeesLink" style="display:none"><i class="fas fa-people-group"></i> Comités</a>
+        </nav>
+        <div class="sidebar-footer">
+            <div class="sidebar-user">
+                <div class="avatar">👤</div>
+                <div class="info"><div class="name" id="sidebarName">—</div><span class="role-badge" id="sidebarRole">—</span></div>
+                <button class="theme-btn" onclick="toggleTheme()" id="themeBtn" title="Cambiar tema">☀️</button>
+            </div>
+            <div style="margin-top:.75rem;display:flex;gap:.5rem">
+                <a href="index.html" class="btn btn-outline btn-sm" style="flex:1;justify-content:center"><i class="fas fa-globe"></i> Sitio</a>
+                <button class="btn btn-outline btn-sm" onclick="doLogout()" style="flex:1"><i class="fas fa-sign-out-alt"></i> Salir</button>
+            </div>
+        </div>
+    </aside>
+
+    <main class="main-content">
+        <!-- Overview -->
+        <div class="tab-content active" id="tab-overview">
+            <div class="page-header"><div><h2>Dashboard</h2><p>Resumen general de ASEISI</p></div></div>
+            <div class="stat-cards" id="overviewStats"></div>
+            <div class="card"><h3 style="margin-bottom:1rem">📅 Próximos Eventos</h3><div id="overviewEvents"></div></div>
+        </div>
+        <!-- Counters -->
+        <div class="tab-content" id="tab-counters">
+            <div class="page-header"><div><h2>Contadores</h2><p>Estadísticas de la página principal</p></div><button class="btn btn-primary" onclick="openCounterModal()"><i class="fas fa-plus"></i> Nuevo</button></div>
+            <div class="card"><table><thead><tr><th>Etiqueta</th><th>Valor</th><th>Orden</th><th>Acciones</th></tr></thead><tbody id="countersTable"></tbody></table></div>
+        </div>
+        <!-- Events -->
+        <div class="tab-content" id="tab-events">
+            <div class="page-header"><div><h2>Eventos</h2><p>Gestiona los eventos</p></div><button class="btn btn-primary" onclick="openEventModal()"><i class="fas fa-plus"></i> Nuevo Evento</button></div>
+            <div class="card"><table><thead><tr><th>Evento</th><th>Fecha</th><th>Lugar</th><th>Estado</th><th>Visible</th><th>Acciones</th></tr></thead><tbody id="eventsTable"></tbody></table></div>
+        </div>
+        <!-- Team -->
+        <div class="tab-content" id="tab-team">
+            <div class="page-header"><div><h2>Junta Directiva</h2><p>Miembros de la directiva</p></div><button class="btn btn-primary" onclick="openTeamModal()"><i class="fas fa-plus"></i> Nuevo Miembro</button></div>
+            <div class="card"><table><thead><tr><th>Foto</th><th>Miembro</th><th>Cargo</th><th>Visible</th><th>Acciones</th></tr></thead><tbody id="teamTable"></tbody></table></div>
+        </div>
+        <!-- News -->
+        <div class="tab-content" id="tab-news">
+            <div class="page-header"><div><h2>Noticias</h2><p>Publicaciones y anuncios</p></div><button class="btn btn-primary" onclick="openNewsModal()"><i class="fas fa-plus"></i> Nueva Noticia</button></div>
+            <div class="card"><table><thead><tr><th>Título</th><th>Tag</th><th>Fecha</th><th>Visible</th><th>Acciones</th></tr></thead><tbody id="newsTable"></tbody></table></div>
+        </div>
+        <!-- Gallery -->
+        <div class="tab-content" id="tab-gallery">
+            <div class="page-header"><div><h2>Galería</h2><p>Imágenes y momentos</p></div><button class="btn btn-primary" onclick="openGalleryModal()"><i class="fas fa-plus"></i> Nueva Imagen</button></div>
+            <div class="card"><table><thead><tr><th>Preview</th><th>Caption</th><th>Orden</th><th>Visible</th><th>Acciones</th></tr></thead><tbody id="galleryTable"></tbody></table></div>
+        </div>
+        <!-- Users -->
+        <div class="tab-content" id="tab-users">
+            <div class="page-header"><div><h2>Gestión de Usuarios</h2><p>Usuarios, roles y permisos</p></div><button class="btn btn-primary" onclick="openUserModal()"><i class="fas fa-plus"></i> Nuevo Usuario</button></div>
+            <div class="card"><table><thead><tr><th>Usuario</th><th>Nombre</th><th>Correo</th><th>Rol</th><th>Comités</th><th>Estado</th><th>Acciones</th></tr></thead><tbody id="usersTable"></tbody></table></div>
+        </div>
+        <!-- Committees -->
+        <div class="tab-content" id="tab-committees">
+            <div class="page-header"><div><h2>Comités</h2><p>Gestiona comités y miembros</p></div><button class="btn btn-primary" onclick="openCommitteeModal()"><i class="fas fa-plus"></i> Nuevo Comité</button></div>
+            <div id="committeesContent"></div>
+        </div>
+    </main>
+</div>
+
+<!-- Modal -->
+<div class="modal-overlay" id="modal"><div class="modal"><button class="modal-close" onclick="closeModal()"><i class="fas fa-times"></i></button><h3 id="modalTitle">—</h3><div id="modalBody"></div></div></div>
+<div class="toast" id="toast"><i class="fas fa-check-circle"></i> <span id="toastMsg"></span></div>
+
+<script>
+const API = 'http://localhost:8092';
+let TOKEN = localStorage.getItem('aseisi_token') || '';
+let USER = JSON.parse(localStorage.getItem('aseisi_user') || 'null');
+let DATA = {};
+
+const EMOJIS = ['📅','💻','🤖','🌐','🚀','🏆','📱','🎓','💡','🔬','🎯','🎮','📊','🔒','⚡','🌟','🎉','🏫','🤝','📢','🗳️','⚖️','👩‍💻','👨‍💻','👩‍🎓','👨‍🔬','👩‍🔧','👨‍🎨','👤','🧑‍💼','📷','🎨','🎭','🎵','🏅','🔥','💪','🌎','❤️','💙','🧠','🛡️','📝','📚','🔗','⭐','💎','🏗️','🎪','🗂️'];
+
+// ─── API ────────────────────────────────────────────────────────────────
+
+async function api(path, opts = {}) {
+    const headers = { 'Content-Type': 'application/json' };
+    if (TOKEN) headers['Authorization'] = `Bearer ${TOKEN}`;
+    const res = await fetch(API + path, { ...opts, headers });
+    const data = await res.json();
+    if (!res.ok) { showToast(data.error || 'Error', true); throw new Error(data.error); }
+    return data;
+}
+
+function imgUrl(path) {
+    if (!path) return '';
+    if (path.startsWith('http') || path.startsWith('data:')) return path;
+    return API + '/' + path;
+}
+
+// ─── Auth ────────────────────────────────────────────────────────────────
+
+async function doLogin(e) {
+    e.preventDefault();
+    if (!e.target.checkValidity()) { e.target.reportValidity(); return; }
+    try {
+        const data = await api('/api/login', { method: 'POST', body: JSON.stringify({ username: gv('loginUser'), password: gv('loginPass') }) });
+        TOKEN = data.token; USER = data.user;
+        localStorage.setItem('aseisi_token', TOKEN); localStorage.setItem('aseisi_user', JSON.stringify(USER));
+        showDashboard();
+    } catch {}
+}
+
+async function doRegister(e) {
+    e.preventDefault();
+    if (!e.target.checkValidity()) { e.target.reportValidity(); return; }
+    try {
+        await api('/api/register', { method:'POST', body: JSON.stringify({ full_name: gv('regName'), username: gv('regUser'), email: gv('regEmail'), password: gv('regPass') }) });
+        showToast('¡Cuenta creada! Ahora inicia sesión.');
+        document.getElementById('registerForm').style.display = 'none';
+    } catch {}
+}
+
+function showRegisterForm() { const el = document.getElementById('registerForm'); el.style.display = el.style.display === 'none' ? 'block' : 'none'; }
+
+function doLogout() {
+    api('/api/logout', { method:'POST' }).catch(() => {});
+    TOKEN = ''; USER = null;
+    localStorage.removeItem('aseisi_token'); localStorage.removeItem('aseisi_user');
+    document.getElementById('dashboard').style.display = 'none';
+    document.getElementById('loginScreen').style.display = 'flex';
+}
+
+// ─── Dashboard ───────────────────────────────────────────────────────────
+
+function showDashboard() {
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('dashboard').style.display = 'flex';
+    document.getElementById('sidebarName').textContent = USER.full_name || USER.username;
+    const rb = document.getElementById('sidebarRole');
+    rb.textContent = USER.role === 'admin' ? '🔑 Admin' : '👤 Miembro';
+    rb.className = 'role-badge ' + (USER.role === 'admin' ? 'role-admin' : 'role-member');
+    const isAdmin = USER.role === 'admin';
+    document.getElementById('adminSection').style.display = isAdmin ? 'block' : 'none';
+    document.getElementById('usersLink').style.display = isAdmin ? 'flex' : 'none';
+    document.getElementById('committeesLink').style.display = isAdmin ? 'flex' : 'none';
+    loadAll();
+}
+
+async function loadAll() {
+    for (const [key, adminPath, pubPath] of [
+        ['counters','/api/admin/counters','/api/public/counters'],
+        ['events','/api/admin/events','/api/public/events'],
+        ['team','/api/admin/team_members','/api/public/team'],
+        ['news','/api/admin/news','/api/public/news'],
+        ['gallery','/api/admin/gallery','/api/public/gallery'],
+        ['committees','/api/admin/committees','/api/public/committees'],
+    ]) { try { DATA[key] = await api(adminPath); } catch { DATA[key] = await api(pubPath); } }
+    if (USER.role === 'admin') DATA.users = await api('/api/admin/users');
+    renderAll();
+}
+
+function renderAll() {
+    renderOverview(); renderCounters(); renderEvents(); renderTeam(); renderNews(); renderGallery();
+    if (USER.role === 'admin') { renderUsers(); renderCommittees(); }
+}
+
+function renderOverview() {
+    document.getElementById('overviewStats').innerHTML = `
+        <div class="stat-card"><div class="label">Usuarios</div><div class="value">${DATA.users ? DATA.users.length : '—'}</div></div>
+        <div class="stat-card"><div class="label">Eventos</div><div class="value">${DATA.events.length}</div></div>
+        <div class="stat-card"><div class="label">Comités</div><div class="value">${DATA.committees.length}</div></div>
+        <div class="stat-card"><div class="label">Noticias</div><div class="value">${DATA.news.length}</div></div>`;
+    document.getElementById('overviewEvents').innerHTML = DATA.events.length ? DATA.events.slice(0,5).map(e => `
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:.6rem 0;border-bottom:1px solid var(--border)">
+            <div><span style="margin-right:.5rem">${e.emoji||'📅'}</span><strong>${e.title}</strong></div>
+            <div style="display:flex;align-items:center;gap:.75rem"><span style="color:var(--muted);font-size:.85rem">${formatDate(e.event_date)}</span><span class="badge badge-${e.status||'upcoming'}">${e.status}</span></div>
+        </div>`).join('') : '<p style="color:var(--muted)">No hay eventos</p>';
+}
+
+function renderCounters() {
+    document.getElementById('countersTable').innerHTML = DATA.counters.map(c => `<tr>
+        <td><strong>${esc(c.label)}</strong></td><td>${c.value}</td><td>${c.sort_order??0}</td>
+        <td class="actions"><button class="btn btn-outline btn-sm" onclick="openCounterModal(${c.id})"><i class="fas fa-edit"></i></button>
+        ${USER.role==='admin'?`<button class="btn btn-danger btn-sm" onclick="deleteItem('counters',${c.id})"><i class="fas fa-trash"></i></button>`:''}</td></tr>`).join('');
+}
+
+function renderEvents() {
+    document.getElementById('eventsTable').innerHTML = DATA.events.map(e => `<tr>
+        <td>${e.emoji||'📅'} <strong>${esc(e.title)}</strong></td><td>${formatDate(e.event_date)}</td><td>${esc(e.location)}</td>
+        <td><span class="badge badge-${e.status||'upcoming'}">${e.status}</span></td><td>${e.visible?'✅':'❌'}</td>
+        <td class="actions"><button class="btn btn-outline btn-sm" onclick="openEventModal(${e.id})"><i class="fas fa-edit"></i></button>
+        ${USER.role==='admin'?`<button class="btn btn-danger btn-sm" onclick="deleteItem('events',${e.id})"><i class="fas fa-trash"></i></button>`:''}</td></tr>`).join('');
+}
+
+function renderTeam() {
+    document.getElementById('teamTable').innerHTML = DATA.team.map(t => {
+        const img = t.image_url ? `<img src="${imgUrl(t.image_url)}" class="thumb-sm">` : `<span style="font-size:1.5rem">${t.avatar_emoji||'👤'}</span>`;
+        return `<tr><td>${img}</td><td><strong>${esc(t.full_name)}</strong></td><td>${esc(t.role_title)}</td>
+        <td>${t.visible!==0?'✅':'❌'}</td>
+        <td class="actions"><button class="btn btn-outline btn-sm" onclick="openTeamModal(${t.id})"><i class="fas fa-edit"></i></button>
+        ${USER.role==='admin'?`<button class="btn btn-danger btn-sm" onclick="deleteItem('team',${t.id})"><i class="fas fa-trash"></i></button>`:''}</td></tr>`;
+    }).join('');
+}
+
+function renderNews() {
+    document.getElementById('newsTable').innerHTML = DATA.news.map(n => `<tr>
+        <td><strong>${esc(n.title)}</strong></td><td>${esc(n.tag)}</td><td>${formatDate(n.published_date)}</td><td>${n.visible!==0?'✅':'❌'}</td>
+        <td class="actions"><button class="btn btn-outline btn-sm" onclick="openNewsModal(${n.id})"><i class="fas fa-edit"></i></button>
+        ${USER.role==='admin'?`<button class="btn btn-danger btn-sm" onclick="deleteItem('news',${n.id})"><i class="fas fa-trash"></i></button>`:''}</td></tr>`).join('');
+}
+
+function renderGallery() {
+    document.getElementById('galleryTable').innerHTML = DATA.gallery.map(g => {
+        const preview = g.image_url ? `<img src="${imgUrl(g.image_url)}" class="thumb-sm">` : `<span style="font-size:1.5rem">${g.emoji||'📷'}</span>`;
+        return `<tr><td>${preview}</td><td><strong>${esc(g.caption)}</strong></td><td>${g.sort_order??0}</td><td>${g.visible!==0?'✅':'❌'}</td>
+        <td class="actions"><button class="btn btn-outline btn-sm" onclick="openGalleryModal(${g.id})"><i class="fas fa-edit"></i></button>
+        ${USER.role==='admin'?`<button class="btn btn-danger btn-sm" onclick="deleteItem('gallery',${g.id})"><i class="fas fa-trash"></i></button>`:''}</td></tr>`;
+    }).join('');
+}
+
+function renderUsers() {
+    if (!DATA.users) return;
+    document.getElementById('usersTable').innerHTML = DATA.users.map(u => `<tr>
+        <td><strong>${esc(u.username)}</strong></td><td>${esc(u.full_name)}</td><td>${esc(u.email)||'—'}</td>
+        <td><span class="role-badge ${u.role==='admin'?'role-admin':'role-member'}">${u.role==='admin'?'🔑 Admin':'👤 Miembro'}</span></td>
+        <td>${u.committees.length?u.committees.map(c=>esc(c.name)).join(', '):'—'}</td><td>${u.active?'✅':'❌'}</td>
+        <td class="actions"><button class="btn btn-outline btn-sm" onclick="openUserEditModal(${u.id})"><i class="fas fa-edit"></i></button>
+        <button class="btn btn-danger btn-sm" onclick="deleteUser(${u.id},'${esc(u.username)}')"><i class="fas fa-trash"></i></button></td></tr>`).join('');
+}
+
+function renderCommittees() {
+    const div = document.getElementById('committeesContent');
+    div.innerHTML = DATA.committees.map(c => `<div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem">
+            <div><h3><i class="${c.icon||'fas fa-users'}"></i> ${esc(c.name)}</h3><p style="color:var(--muted);font-size:.85rem">${esc(c.description)}</p></div>
+            <div class="actions"><button class="btn btn-outline btn-sm" onclick="openCommitteeModal(${c.id})"><i class="fas fa-edit"></i></button>
+            <button class="btn btn-primary btn-sm" onclick="openAddMemberToCommittee(${c.id},'${esc(c.name)}')"><i class="fas fa-user-plus"></i></button></div>
+        </div><div id="cm-${c.id}"><em style="color:var(--muted)">Cargando...</em></div></div>`).join('');
+    DATA.committees.forEach(c => loadCM(c.id));
+}
+
+async function loadCM(cid) {
+    try {
+        const m = await api(`/api/admin/committee/${cid}/members`);
+        document.getElementById(`cm-${cid}`).innerHTML = m.length ?
+            '<table><thead><tr><th>Usuario</th><th>Nombre</th><th>Rol</th><th>Acciones</th></tr></thead><tbody>' +
+            m.map(x => `<tr><td>${esc(x.username)}</td><td>${esc(x.full_name)}</td><td>${x.role}</td><td><button class="btn btn-danger btn-sm" onclick="removeCM(${x.id},${cid})"><i class="fas fa-user-minus"></i></button></td></tr>`).join('') +
+            '</tbody></table>' : '<p style="color:var(--muted);font-size:.85rem">Sin miembros</p>';
+    } catch {}
+}
+
+// ─── Helpers ─────────────────────────────────────────────────────────────
+
+function gv(id) { return document.getElementById(id)?.value || ''; }
+function esc(v) { return String(v||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function formatDate(d) { if(!d) return '—'; try { return new Date(d+'T00:00:00').toLocaleDateString('es-SV',{day:'numeric',month:'short',year:'numeric'}); } catch { return d; } }
+function showToast(m,err) { const t=document.getElementById('toast'); document.getElementById('toastMsg').textContent=m; t.className='toast show'+(err?' error':''); setTimeout(()=>t.className='toast',3000); }
+function openModal() { document.getElementById('modal').classList.add('active'); }
+function closeModal() { document.getElementById('modal').classList.remove('active'); }
+function setModal(t, h) { document.getElementById('modalTitle').textContent=t; document.getElementById('modalBody').innerHTML=h; openModal(); initPickers(); }
+function toggleTheme() { const n = document.documentElement.getAttribute('data-theme')==='dark'?'light':'dark'; document.documentElement.setAttribute('data-theme',n); document.getElementById('themeBtn').textContent=n==='dark'?'☀️':'🌙'; localStorage.setItem('aseisi-theme',n); }
+
+// Emoji picker HTML
+function emojiField(id, label, current) {
+    return `<div class="form-group"><label>${label}</label>
+        <div class="emoji-picker-wrap"><div class="emoji-input-row">
+            <div class="emoji-preview" onclick="toggleEmojiGrid('${id}')">${current||'📅'}</div>
+            <input id="${id}" value="${current||'📅'}" readonly style="cursor:pointer" onclick="toggleEmojiGrid('${id}')">
+        </div><div class="emoji-grid" id="${id}_grid">${EMOJIS.map(e=>`<span onclick="pickEmoji('${id}','${e}')">${e}</span>`).join('')}</div></div></div>`;
+}
+
+function toggleEmojiGrid(id) {
+    const grid = document.getElementById(id+'_grid');
+    document.querySelectorAll('.emoji-grid.open').forEach(g => { if(g.id !== id+'_grid') g.classList.remove('open'); });
+    grid.classList.toggle('open');
+}
+function pickEmoji(id, emoji) {
+    document.getElementById(id).value = emoji;
+    document.getElementById(id+'_grid').classList.remove('open');
+    document.getElementById(id).previousElementSibling?.remove(); // preview
+    const wrap = document.getElementById(id).closest('.emoji-input-row');
+    if(wrap) wrap.querySelector('.emoji-preview').textContent = emoji;
+}
+
+// Image upload field
+function imageField(id, label, currentUrl) {
+    const preview = currentUrl ? `<img src="${imgUrl(currentUrl)}" id="${id}_img"><button type="button" class="img-remove" onclick="clearImage('${id}')">&times;</button>` :
+        `<div class="placeholder" id="${id}_placeholder"><i class="fas fa-cloud-upload-alt"></i>Click o arrastra una imagen</div>`;
+    return `<div class="form-group"><label>${label}</label>
+        <div class="img-upload" id="${id}_wrap">${preview}<input type="file" accept="image/*" onchange="handleImageUpload('${id}',this)"></div>
+        <input type="hidden" id="${id}" value="${esc(currentUrl)}"></div>`;
+}
+
+function handleImageUpload(id, input) {
+    const file = input.files[0]; if(!file) return;
+    if(file.size > 5*1024*1024) { showToast('Imagen muy grande (máx 5MB)',true); return; }
+    const reader = new FileReader();
+    reader.onload = () => {
+        document.getElementById(id).value = reader.result;
+        const wrap = document.getElementById(id+'_wrap');
+        wrap.innerHTML = `<img src="${reader.result}" id="${id}_img"><button type="button" class="img-remove" onclick="clearImage('${id}')">&times;</button><input type="file" accept="image/*" onchange="handleImageUpload('${id}',this)">`;
+    };
+    reader.readAsDataURL(file);
+}
+
+function clearImage(id) {
+    document.getElementById(id).value = '';
+    const wrap = document.getElementById(id+'_wrap');
+    wrap.innerHTML = `<div class="placeholder"><i class="fas fa-cloud-upload-alt"></i>Click o arrastra una imagen</div><input type="file" accept="image/*" onchange="handleImageUpload('${id}',this)">`;
+}
+
+// Gradient color picker
+function gradientField(id, label, current) {
+    // Parse existing gradient colors
+    let c1 = '#B71C1C', c2 = '#D32F2F';
+    if (current) {
+        const m = current.match(/#[0-9A-Fa-f]{6}/g);
+        if (m && m.length >= 2) { c1 = m[0]; c2 = m[1]; }
+    }
+    return `<div class="form-group"><label>${label}</label>
+        <div class="color-picker-row">
+            <input type="color" id="${id}_c1" value="${c1}" onchange="updateGradient('${id}')">
+            <input type="color" id="${id}_c2" value="${c2}" onchange="updateGradient('${id}')">
+            <div class="gradient-preview" id="${id}_preview" style="background:${current||`linear-gradient(135deg,${c1},${c2})`}"></div>
+        </div><input type="hidden" id="${id}" value="${esc(current)||`linear-gradient(135deg,${c1},${c2})`}"></div>`;
+}
+
+function updateGradient(id) {
+    const c1 = document.getElementById(id+'_c1').value;
+    const c2 = document.getElementById(id+'_c2').value;
+    const grad = `linear-gradient(135deg,${c1},${c2})`;
+    document.getElementById(id).value = grad;
+    document.getElementById(id+'_preview').style.background = grad;
+}
+
+function initPickers() {
+    // Close emoji grids on outside click
+    document.addEventListener('click', function handler(e) {
+        if (!e.target.closest('.emoji-picker-wrap')) {
+            document.querySelectorAll('.emoji-grid.open').forEach(g => g.classList.remove('open'));
+        }
+    });
+}
+
+// ─── Modal forms ─────────────────────────────────────────────────────────
+
+function openCounterModal(id) {
+    const c = id ? DATA.counters.find(x=>x.id===id) : null;
+    setModal(c?'Editar Contador':'Nuevo Contador', `<form onsubmit="saveCounter(event,${id||'null'})" novalidate>
+        <div class="form-group"><label>Etiqueta</label><input id="m_label" value="${esc(c?.label)}" required minlength="2" placeholder="Ej: Miembros Activos"><div class="error-msg">Requerido</div></div>
+        <div class="form-row"><div class="form-group"><label>Valor</label><input type="number" id="m_value" value="${c?.value??0}" required min="0"><div class="error-msg">Debe ser ≥ 0</div></div>
+        <div class="form-group"><label>Orden</label><input type="number" id="m_order" value="${c?.sort_order??0}"></div></div>
+        <div class="modal-actions"><button type="button" class="btn btn-outline" onclick="closeModal()">Cancelar</button><button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Guardar</button></div></form>`);
+}
+
+async function saveCounter(e,id) {
+    e.preventDefault(); if(!e.target.checkValidity()){e.target.reportValidity();return;}
+    await api(id?`/api/admin/counters/${id}`:'/api/admin/counters',{method:id?'PUT':'POST',body:JSON.stringify({label:gv('m_label'),value:parseInt(gv('m_value')),sort_order:parseInt(gv('m_order'))})});
+    closeModal();showToast('¡Contador guardado!');loadAll();
+}
+
+function openEventModal(id) {
+    const e = id ? DATA.events.find(x=>x.id===id) : null;
+    setModal(e?'Editar Evento':'Nuevo Evento', `<form onsubmit="saveEvent(event,${id||'null'})" novalidate>
+        <div class="form-row"><div class="form-group"><label>Título *</label><input id="m_title" value="${esc(e?.title)}" required minlength="3"><div class="error-msg">Mín 3 caracteres</div></div>
+        ${emojiField('m_emoji','Emoji',e?.emoji||'📅')}</div>
+        <div class="form-group"><label>Descripción</label><textarea id="m_desc" rows="3" placeholder="Describe el evento...">${esc(e?.description)}</textarea></div>
+        <div class="form-row"><div class="form-group"><label>Fecha *</label><input type="date" id="m_date" value="${e?.event_date||''}" required><div class="error-msg">Fecha requerida</div></div>
+        <div class="form-group"><label>Ubicación</label><input id="m_loc" value="${esc(e?.location)}" placeholder="Auditorio FIA..."></div></div>
+        <div class="form-row"><div class="form-group"><label>Capacidad</label><input type="number" id="m_cap" value="${e?.capacity||0}" min="0"></div>
+        <div class="form-group"><label>Duración</label><input id="m_dur" value="${esc(e?.duration)}" placeholder="2 horas"></div></div>
+        <div class="form-row"><div class="form-group"><label>Estado</label><select id="m_status">
+            <option value="upcoming" ${e?.status==='upcoming'?'selected':''}>Próximamente</option>
+            <option value="open" ${e?.status==='open'?'selected':''}>Inscripciones Abiertas</option>
+            <option value="soon" ${e?.status==='soon'?'selected':''}>Próxima Semana</option></select></div>
+        <div class="form-group"><label>Visible</label><select id="m_vis"><option value="1" ${e?.visible!==0?'selected':''}>Sí</option><option value="0" ${e?.visible===0?'selected':''}>No</option></select></div></div>
+        ${gradientField('m_grad','Color del banner',e?.gradient)}
+        ${imageField('m_img','Imagen del evento (opcional)',e?.image_url)}
+        <div class="form-group"><label>Orden</label><input type="number" id="m_order" value="${e?.sort_order||0}"></div>
+        <div class="modal-actions"><button type="button" class="btn btn-outline" onclick="closeModal()">Cancelar</button><button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Guardar</button></div></form>`);
+}
+
+async function saveEvent(ev,id) {
+    ev.preventDefault(); if(!ev.target.checkValidity()){ev.target.reportValidity();return;}
+    const body = {title:gv('m_title'),emoji:gv('m_emoji'),description:gv('m_desc'),event_date:gv('m_date'),location:gv('m_loc'),capacity:parseInt(gv('m_cap')),duration:gv('m_dur'),status:gv('m_status'),visible:parseInt(gv('m_vis')),gradient:gv('m_grad'),sort_order:parseInt(gv('m_order'))};
+    const img = gv('m_img'); if(img) body.image_url = img;
+    await api(id?`/api/admin/events/${id}`:'/api/admin/events',{method:id?'PUT':'POST',body:JSON.stringify(body)});
+    closeModal();showToast('¡Evento guardado!');loadAll();
+}
+
+function openTeamModal(id) {
+    const t = id ? DATA.team.find(x=>x.id===id) : null;
+    setModal(t?'Editar Miembro':'Nuevo Miembro', `<form onsubmit="saveTeam(event,${id||'null'})" novalidate>
+        <div class="form-row"><div class="form-group"><label>Nombre *</label><input id="m_name" value="${esc(t?.full_name)}" required minlength="2"><div class="error-msg">Requerido</div></div>
+        <div class="form-group"><label>Cargo *</label><input id="m_role" value="${esc(t?.role_title)}" required><div class="error-msg">Requerido</div></div></div>
+        <div class="form-group"><label>Descripción</label><input id="m_desc" value="${esc(t?.description)}" placeholder="5to año · Apasionada por IA..."></div>
+        ${emojiField('m_avatar','Emoji (si no hay foto)',t?.avatar_emoji||'👤')}
+        ${imageField('m_img','Foto del miembro',t?.image_url)}
+        <div class="form-row"><div class="form-group"><label>LinkedIn</label><input type="url" id="m_linkedin" value="${esc(t?.linkedin)}" placeholder="https://linkedin.com/in/..."><div class="error-msg">URL inválida</div></div>
+        <div class="form-group"><label>GitHub</label><input type="url" id="m_github" value="${esc(t?.github)}" placeholder="https://github.com/..."><div class="error-msg">URL inválida</div></div></div>
+        <div class="form-row"><div class="form-group"><label>Instagram</label><input type="url" id="m_ig" value="${esc(t?.instagram)}" placeholder="https://instagram.com/..."><div class="error-msg">URL inválida</div></div>
+        <div class="form-group"><label>Orden</label><input type="number" id="m_order" value="${t?.sort_order||0}"></div></div>
+        <div class="form-group"><label>Visible</label><select id="m_vis"><option value="1" ${t?.visible!==0?'selected':''}>Sí</option><option value="0" ${t?.visible===0?'selected':''}>No</option></select></div>
+        <div class="modal-actions"><button type="button" class="btn btn-outline" onclick="closeModal()">Cancelar</button><button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Guardar</button></div></form>`);
+}
+
+async function saveTeam(ev,id) {
+    ev.preventDefault(); if(!ev.target.checkValidity()){ev.target.reportValidity();return;}
+    const body = {full_name:gv('m_name'),role_title:gv('m_role'),description:gv('m_desc'),avatar_emoji:gv('m_avatar'),sort_order:parseInt(gv('m_order')),visible:parseInt(gv('m_vis')),linkedin:gv('m_linkedin'),github:gv('m_github'),instagram:gv('m_ig')};
+    const img = gv('m_img'); if(img) body.image_url = img;
+    await api(id?`/api/admin/team/${id}`:'/api/admin/team',{method:id?'PUT':'POST',body:JSON.stringify(body)});
+    closeModal();showToast('¡Miembro guardado!');loadAll();
+}
+
+function openNewsModal(id) {
+    const n = id ? DATA.news.find(x=>x.id===id) : null;
+    setModal(n?'Editar Noticia':'Nueva Noticia', `<form onsubmit="saveNews(event,${id||'null'})" novalidate>
+        <div class="form-group"><label>Título *</label><input id="m_title" value="${esc(n?.title)}" required minlength="3"><div class="error-msg">Mín 3 caracteres</div></div>
+        <div class="form-group"><label>Contenido</label><textarea id="m_content" rows="4" placeholder="Redacta la noticia...">${esc(n?.content)}</textarea></div>
+        <div class="form-row">
+        ${emojiField('m_tag_emoji','Emoji del Tag',(n?.tag||'📢').match(/^./u)?.[0]||'📢')}
+        <div class="form-group"><label>Tag texto</label><input id="m_tag_text" value="${esc((n?.tag||'Noticia').replace(/^.\s*/,''))}" placeholder="Logro, Alianza..."></div></div>
+        <div class="form-row"><div class="form-group"><label>Fecha *</label><input type="date" id="m_date" value="${n?.published_date||''}" required><div class="error-msg">Fecha requerida</div></div>
+        <div class="form-group"><label>Visible</label><select id="m_vis"><option value="1" ${n?.visible!==0?'selected':''}>Sí</option><option value="0" ${n?.visible===0?'selected':''}>No</option></select></div></div>
+        <div class="modal-actions"><button type="button" class="btn btn-outline" onclick="closeModal()">Cancelar</button><button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Guardar</button></div></form>`);
+}
+
+async function saveNews(ev,id) {
+    ev.preventDefault(); if(!ev.target.checkValidity()){ev.target.reportValidity();return;}
+    const tag = gv('m_tag_emoji') + ' ' + gv('m_tag_text');
+    await api(id?`/api/admin/news/${id}`:'/api/admin/news',{method:id?'PUT':'POST',body:JSON.stringify({title:gv('m_title'),content:gv('m_content'),tag:tag.trim(),published_date:gv('m_date'),visible:parseInt(gv('m_vis'))})});
+    closeModal();showToast('¡Noticia guardada!');loadAll();
+}
+
+function openGalleryModal(id) {
+    const g = id ? DATA.gallery.find(x=>x.id===id) : null;
+    setModal(g?'Editar Imagen':'Nueva Imagen', `<form onsubmit="saveGallery(event,${id||'null'})" novalidate>
+        <div class="form-group"><label>Caption *</label><input id="m_caption" value="${esc(g?.caption)}" required minlength="2"><div class="error-msg">Requerido</div></div>
+        ${imageField('m_img','Imagen (recomendado 16:10)',g?.image_url)}
+        ${emojiField('m_emoji','Emoji (si no hay imagen)',g?.emoji||'📷')}
+        ${gradientField('m_grad','Color de fondo',g?.gradient)}
+        <div class="form-row"><div class="form-group"><label>Orden</label><input type="number" id="m_order" value="${g?.sort_order||0}"></div>
+        <div class="form-group"><label>Visible</label><select id="m_vis"><option value="1" ${g?.visible!==0?'selected':''}>Sí</option><option value="0" ${g?.visible===0?'selected':''}>No</option></select></div></div>
+        <div class="modal-actions"><button type="button" class="btn btn-outline" onclick="closeModal()">Cancelar</button><button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Guardar</button></div></form>`);
+}
+
+async function saveGallery(ev,id) {
+    ev.preventDefault(); if(!ev.target.checkValidity()){ev.target.reportValidity();return;}
+    const body = {caption:gv('m_caption'),emoji:gv('m_emoji'),gradient:gv('m_grad'),sort_order:parseInt(gv('m_order')),visible:parseInt(gv('m_vis'))};
+    const img = gv('m_img'); if(img) body.image_url = img;
+    await api(id?`/api/admin/gallery/${id}`:'/api/admin/gallery',{method:id?'PUT':'POST',body:JSON.stringify(body)});
+    closeModal();showToast('¡Galería guardada!');loadAll();
+}
+
+function openUserModal() {
+    setModal('Nuevo Usuario', `<form onsubmit="saveNewUser(event)" novalidate>
+        <div class="form-row"><div class="form-group"><label>Usuario *</label><input id="m_user" required minlength="3" pattern="[a-zA-Z0-9_]+"><div class="error-msg">Solo letras/números, mín 3</div></div>
+        <div class="form-group"><label>Contraseña</label><input id="m_pass" type="password" value="aseisi2026" minlength="6"><div class="error-msg">Mín 6 caracteres</div></div></div>
+        <div class="form-row"><div class="form-group"><label>Nombre *</label><input id="m_name" required><div class="error-msg">Requerido</div></div>
+        <div class="form-group"><label>Correo</label><input type="email" id="m_email"><div class="error-msg">Correo inválido</div></div></div>
+        <div class="form-group"><label>Rol</label><select id="m_role"><option value="member">Miembro</option><option value="admin">Administrador</option></select></div>
+        <div class="modal-actions"><button type="button" class="btn btn-outline" onclick="closeModal()">Cancelar</button><button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Crear</button></div></form>`);
+}
+
+async function saveNewUser(ev) {
+    ev.preventDefault(); if(!ev.target.checkValidity()){ev.target.reportValidity();return;}
+    await api('/api/admin/users',{method:'POST',body:JSON.stringify({username:gv('m_user'),password:gv('m_pass'),full_name:gv('m_name'),email:gv('m_email'),role:gv('m_role')})});
+    closeModal();showToast('¡Usuario creado!');loadAll();
+}
+
+function openUserEditModal(id) {
+    const u = DATA.users.find(x=>x.id===id); if(!u) return;
+    setModal('Editar: '+u.username, `<form onsubmit="updateUser(event,${id})" novalidate>
+        <div class="form-row"><div class="form-group"><label>Nombre</label><input id="m_name" value="${esc(u.full_name)}"></div>
+        <div class="form-group"><label>Correo</label><input type="email" id="m_email" value="${esc(u.email)}"><div class="error-msg">Correo inválido</div></div></div>
+        <div class="form-row"><div class="form-group"><label>Rol</label><select id="m_role"><option value="member" ${u.role==='member'?'selected':''}>Miembro</option><option value="admin" ${u.role==='admin'?'selected':''}>Administrador</option></select></div>
+        <div class="form-group"><label>Estado</label><select id="m_active"><option value="1" ${u.active?'selected':''}>Activo</option><option value="0" ${!u.active?'selected':''}>Inactivo</option></select></div></div>
+        <div class="form-group"><label>Nueva Contraseña (vacío = no cambiar)</label><input type="password" id="m_pass" minlength="6"><div class="error-msg">Mín 6 caracteres</div></div>
+        <div class="modal-actions"><button type="button" class="btn btn-outline" onclick="closeModal()">Cancelar</button><button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Guardar</button></div></form>`);
+}
+
+async function updateUser(ev,id) {
+    ev.preventDefault(); if(!ev.target.checkValidity()){ev.target.reportValidity();return;}
+    const body = {full_name:gv('m_name'),email:gv('m_email'),role:gv('m_role'),active:parseInt(gv('m_active'))};
+    if(gv('m_pass')) body.password = gv('m_pass');
+    await api(`/api/admin/users/${id}`,{method:'PUT',body:JSON.stringify(body)});
+    closeModal();showToast('¡Usuario actualizado!');loadAll();
+}
+
+async function deleteUser(id,name) { if(!confirm(`¿Eliminar "${name}"?`)) return; await api(`/api/admin/users/${id}`,{method:'DELETE'}); showToast('Eliminado'); loadAll(); }
+
+function openCommitteeModal(id) {
+    const c = id ? DATA.committees.find(x=>x.id===id) : null;
+    setModal(c?'Editar Comité':'Nuevo Comité', `<form onsubmit="saveCommittee(event,${id||'null'})" novalidate>
+        <div class="form-group"><label>Nombre *</label><input id="m_name" value="${esc(c?.name)}" required minlength="3"><div class="error-msg">Mín 3 caracteres</div></div>
+        <div class="form-group"><label>Descripción</label><textarea id="m_desc" rows="3">${esc(c?.description)}</textarea></div>
+        <div class="form-row"><div class="form-group"><label>Ícono (clase FA)</label><input id="m_icon" value="${esc(c?.icon)||'fas fa-users'}"></div>
+        <div class="form-group"><label>N° Miembros</label><input type="number" id="m_count" value="${c?.member_count||0}" min="0"></div></div>
+        <div class="form-row"><div class="form-group"><label>Orden</label><input type="number" id="m_order" value="${c?.sort_order||0}"></div>
+        <div class="form-group"><label>Visible</label><select id="m_vis"><option value="1" ${c?.visible!==0?'selected':''}>Sí</option><option value="0" ${c?.visible===0?'selected':''}>No</option></select></div></div>
+        <div class="modal-actions"><button type="button" class="btn btn-outline" onclick="closeModal()">Cancelar</button><button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Guardar</button></div></form>`);
+}
+
+async function saveCommittee(ev,id) {
+    ev.preventDefault(); if(!ev.target.checkValidity()){ev.target.reportValidity();return;}
+    await api(id?`/api/admin/committees/${id}`:'/api/admin/committees',{method:id?'PUT':'POST',body:JSON.stringify({name:gv('m_name'),description:gv('m_desc'),icon:gv('m_icon'),member_count:parseInt(gv('m_count')),sort_order:parseInt(gv('m_order')),visible:parseInt(gv('m_vis'))})});
+    closeModal();showToast('¡Comité guardado!');loadAll();
+}
+
+function openAddMemberToCommittee(cid,cname) {
+    if(!DATA.users) return showToast('Solo admin',true);
+    setModal('Agregar a '+cname, `<form onsubmit="addCM(event,${cid})" novalidate>
+        <div class="form-group"><label>Usuario</label><select id="m_uid">${DATA.users.map(u=>`<option value="${u.id}">${esc(u.full_name)} (${esc(u.username)})</option>`).join('')}</select></div>
+        <div class="form-group"><label>Rol en comité</label><select id="m_crole"><option value="member">Miembro</option><option value="coordinator">Coordinador</option></select></div>
+        <div class="modal-actions"><button type="button" class="btn btn-outline" onclick="closeModal()">Cancelar</button><button type="submit" class="btn btn-primary"><i class="fas fa-user-plus"></i> Agregar</button></div></form>`);
+}
+
+async function addCM(ev,cid) { ev.preventDefault(); await api(`/api/admin/committee/${cid}/members`,{method:'POST',body:JSON.stringify({user_id:parseInt(gv('m_uid')),role:gv('m_crole')})}); closeModal();showToast('¡Agregado!');loadAll(); }
+async function removeCM(cmid,cid) { if(!confirm('¿Remover?')) return; await api(`/api/admin/committee-member/${cmid}`,{method:'DELETE'}); showToast('Removido'); loadCM(cid); }
+async function deleteItem(res,id) { if(!confirm('¿Eliminar?')) return; await api(`/api/admin/${res}/${id}`,{method:'DELETE'}); showToast('Eliminado'); loadAll(); }
+
+// ─── Nav ─────────────────────────────────────────────────────────────────
+document.querySelectorAll('.sidebar-nav a').forEach(link => {
+    link.addEventListener('click', e => {
+        e.preventDefault(); const tab = link.dataset.tab; if(!tab) return;
+        document.querySelectorAll('.sidebar-nav a').forEach(a=>a.classList.remove('active'));
+        link.classList.add('active');
+        document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+        document.getElementById('tab-'+tab).classList.add('active');
+    });
+});
+document.addEventListener('keydown', e => { if(e.key==='Escape') closeModal(); });
+
+// ─── Init ────────────────────────────────────────────────────────────────
+(function(){ const s=localStorage.getItem('aseisi-theme'); if(s) document.documentElement.setAttribute('data-theme',s); })();
+window.addEventListener('DOMContentLoaded', async () => {
+    const s=localStorage.getItem('aseisi-theme'); if(s) document.getElementById('themeBtn').textContent=s==='dark'?'☀️':'🌙';
+    if(TOKEN && USER) { try { const me=await api('/api/me'); USER=me; localStorage.setItem('aseisi_user',JSON.stringify(USER)); showDashboard(); } catch { doLogout(); } }
+});
+</script>
+</body>
+</html>
