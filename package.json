@@ -3,8 +3,7 @@
     "private": true,
     "type": "module",
     "scripts": {
-        "build": "vite build",
-        "dev": "vite"
+	"dev": "concurrently \"php artisan serve\" \"vite\""
     },
     "devDependencies": {
         "@headlessui/react": "^2.0.0",
@@ -13,7 +12,7 @@
         "@tailwindcss/vite": "^4.0.0",
         "@vitejs/plugin-react-swc": "^4.3.0",
         "autoprefixer": "^10.4.12",
-        "concurrently": "^9.0.1",
+        "concurrently": "^9.2.1",
         "laravel-vite-plugin": "^3.0.0",
         "postcss": "^8.4.31",
         "react": "^18.2.0",
