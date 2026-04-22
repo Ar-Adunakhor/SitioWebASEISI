@@ -1,58 +1,176 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# 🎓 Plataforma Web ASEISI
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Plataforma oficial de la **Asociación de Estudiantes de Ingeniería en Sistemas Informáticos (ASEISI)** de la Universidad de El Salvador. 
 
-## About Laravel
+Este proyecto es una aplicación web moderna desarrollada con **Laravel 11** y **React (Inertia.js)** que permite a la asociación gestionar de manera dinámica su landing page pública a través de un panel de administración integrado.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+---
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## 🚀 Tecnologías Utilizadas
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+*   **Backend:** Laravel 11 (PHP 8.4)
+*   **Base de Datos:** PostgreSQL
+*   **Frontend:** React 18, Inertia.js
+*   **Empaquetador:** Vite
+*   **Estilos:** Vanilla CSS (Sistema de diseño propio con soporte nativo para Dark Mode)
 
-## Learning Laravel
+---
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+## ⚙️ Guía de Instalación y Ejecución
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+A continuación, se detallan los pasos para levantar el proyecto en una computadora nueva, tanto para Linux como para Windows.
 
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
+### 📋 Requisitos Previos (Para ambos sistemas)
+Asegúrate de tener instalados los siguientes programas en tu computadora:
+1.  **PHP** (v8.2 o superior, idealmente v8.4) con las extensiones `pdo_pgsql`, `mbstring`, `xml`, `curl` y `zip`.
+2.  **Composer** (Gestor de dependencias de PHP).
+3.  **Node.js** (v18 o superior) y **npm**.
+4.  **PostgreSQL** (v14 o superior).
+5.  **Git**.
 
-## Agentic Development
+---
 
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+### 🐧 Pasos para Linux (Ubuntu/Debian/Mint)
 
+**1. Clonar el repositorio**
 ```bash
-composer require laravel/boost --dev
-
-php artisan boost:install
+git clone <URL_DEL_REPOSITORIO>
+cd aseisi
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+**2. Instalar dependencias**
+```bash
+composer install
+npm install
+```
 
-## Contributing
+**3. Configurar el archivo de entorno**
+```bash
+cp .env.example .env
+php artisan key:generate
+```
+Abre el archivo `.env` y asegúrate de que la conexión a la base de datos esté configurada así:
+```env
+DB_CONNECTION=pgsql
+DB_HOST=127.0.0.1
+DB_PORT=5432
+DB_DATABASE=aseisi
+DB_USERNAME=postgres
+DB_PASSWORD=postgres
+```
+*(Asegúrate de que la contraseña coincida con tu usuario de PostgreSQL).*
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+**4. Crear la base de datos en PostgreSQL**
+```bash
+sudo -u postgres psql -c "CREATE DATABASE aseisi;"
+```
+*(Si tu usuario `postgres` necesita contraseña, puedes asignarla con: `sudo -u postgres psql -c "ALTER USER postgres WITH PASSWORD 'postgres';"*)*
 
-## Code of Conduct
+**5. Preparar la Base de Datos y el Almacenamiento**
+```bash
+php artisan migrate --seed
+php artisan storage:link
+```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+**6. Ejecutar los servidores de desarrollo**
+Necesitarás dos pestañas de terminal abiertas:
+```bash
+# Terminal 1: Servidor de Laravel
+php artisan serve
 
-## Security Vulnerabilities
+# Terminal 2: Servidor de Vite (React)
+npm run dev
+```
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+---
 
-## License
+### 🪟 Pasos para Windows
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+**1. Clonar el repositorio**
+Abre tu terminal (PowerShell, Git Bash o CMD) y ejecuta:
+```bash
+git clone <URL_DEL_REPOSITORIO>
+cd aseisi
+```
+
+**2. Instalar dependencias**
+```bash
+composer install
+npm install
+```
+
+**3. Configurar el archivo de entorno**
+```bash
+copy .env.example .env
+php artisan key:generate
+```
+Abre el archivo `.env` en tu editor de código y configura la base de datos de PostgreSQL:
+```env
+DB_CONNECTION=pgsql
+DB_HOST=127.0.0.1
+DB_PORT=5432
+DB_DATABASE=aseisi
+DB_USERNAME=postgres
+DB_PASSWORD=tu_contraseña_de_postgres
+```
+
+**4. Crear la base de datos en PostgreSQL**
+Abre **pgAdmin** o la herramienta de línea de comandos `psql` de PostgreSQL y crea una nueva base de datos llamada `aseisi`. 
+*Si usas la consola SQL Command Line (SQL Shell):*
+```sql
+CREATE DATABASE aseisi;
+```
+
+**5. Preparar la Base de Datos y el Almacenamiento**
+De vuelta en la terminal de tu proyecto, ejecuta:
+```bash
+php artisan migrate --seed
+php artisan storage:link
+```
+
+**6. Ejecutar los servidores de desarrollo**
+Abre dos ventanas de terminal separadas en la carpeta del proyecto:
+```bash
+# Terminal 1: Servidor de Laravel
+php artisan serve
+
+# Terminal 2: Servidor de Vite (React)
+npm run dev
+```
+
+---
+
+## 🔒 Acceso al Sistema
+
+Una vez que el proyecto esté corriendo, puedes acceder a la aplicación web a través de tu navegador en:
+👉 **http://localhost:8000**
+
+### Credenciales de Administrador (Generadas por el Seeder)
+Para acceder al **Panel de Administración**, haz clic en "Iniciar Sesión" en la navegación principal o ve directamente a `http://localhost:8000/login`.
+
+*   **Correo:** `admin@ues.edu.sv`
+*   **Contraseña:** `admin123`
+
+---
+
+## 📁 Estructura del Proyecto
+
+El sistema está dividido en módulos administrables desde el Dashboard:
+*   **Dashboard (`/admin/dashboard`)**: Resumen de estadísticas y eventos próximos.
+*   **Eventos (`/admin/events`)**: Gestión de hackathons, asambleas y talleres con soporte para imágenes y estado de inscripción.
+*   **Contadores (`/admin/counters`)**: Estadísticas dinámicas mostradas en la pantalla principal (ej. "Años de Experiencia", "Miembros Activos").
+*   **Noticias (`/admin/news`)**: Artículos y comunicados de prensa.
+*   **Junta Directiva (`/admin/team`)**: Perfiles de la directiva, con integración de redes sociales y avatares.
+*   **Galería (`/admin/gallery`)**: Imágenes con layouts adaptativos.
+*   **Comités (`/admin/committees`)**: (*Solo Admins*) Gestión de los equipos de trabajo y asignación de usuarios a comités específicos.
+*   **Usuarios (`/admin/users`)**: (*Solo Admins*) Creación y revocación de permisos a miembros de la asociación.
+
+---
+
+## 🛠 Arquitectura
+
+1.  **Enrutamiento Inertia:** La navegación de las vistas de administración ocurre del lado del cliente, permitiendo transiciones ultrarrápidas y retención de estado (ej. Sidebar y Dark Mode no parpadean al cambiar de página).
+2.  **Autorización (FormRequests):** Todas las validaciones y chequeos de roles (Admin vs Miembro) ocurren directamente en clases dedicadas (`app/Http/Requests`) para garantizar la seguridad de cada endpoint.
+3.  **Upload de Imágenes:** Los avatares y banners utilizan un componente reutilizable nativo de React que convierte las imágenes a Base64/Binario y las almacena en la ruta `storage/app/public` de Laravel. El comando `storage:link` permite servirlas estáticamente en la landing page.
+
+Desarrollado con ❤️ para ASEISI.
